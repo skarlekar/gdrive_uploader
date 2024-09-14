@@ -36,7 +36,7 @@ This project is a web application designed to simplify the process of uploading 
 11. Click **Create** and note down the **Client ID** and **Client Secret**.
 
 ### Update .env File
-1. Create a `.env` file in the root directory of your project.
+1. Create a `.env` file in the root directory of your project based on the `.env.example` file.
 2. Add the following environment variables:
     ```env
     CLIENT_ID=your_google_client_id
@@ -44,6 +44,8 @@ This project is a web application designed to simplify the process of uploading 
     API_KEY=your_google_api_key
     ```
 3. Replace `your_google_client_id`, `your_google_client_secret`, and `your_google_api_key` with the values obtained from the Google Console.
+
+Note: Never commit your actual .env file with real credentials to the repository.
 
 ## Installation
 1. Clone the repository:
