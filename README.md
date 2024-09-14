@@ -86,3 +86,27 @@ To use the Google Drive File Uploader Web App:
 7. The application will display the upload progress and a confirmation message once the upload is complete.
 
 8. You can view the uploaded files in both your Google Drive account and the local 'uploads' folder.
+
+## Deployment on Vercel
+
+1. Sign up for a Vercel account at https://vercel.com if you haven't already.
+
+2. Install the Vercel CLI:
+   ```
+   npm i -g vercel
+   ```
+
+3. Run the following command in your project directory:
+   ```
+   vercel
+   ```
+
+4. Follow the prompts to link your project to Vercel.
+
+5. Once deployed, go to the Vercel dashboard, select your project, and navigate to the "Settings" tab.
+
+6. Under "Environment Variables", add your `CLIENT_ID`, `CLIENT_SECRET`, and `API_KEY` with their respective values.
+
+7. After adding the environment variables, redeploy your application for the changes to take effect.
+
+Note: Ensure that you've added the deployment URL to the authorized redirect URIs in your Google Console project settings.
