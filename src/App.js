@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextField, Typography, Container, Snackbar, CircularProgress } from '@material-ui/core';
+import { Button, TextField, Typography, Container, Snackbar, CircularProgress, IconButton } from '@material-ui/core';
 import { CloudUpload, FileCopy } from '@material-ui/icons';
 import { gapi } from 'gapi-script';
 
@@ -54,6 +54,9 @@ function App() {
 
     setIsLoading(true);
     console.log('Starting file upload process');
+    console.log('File size:', file.size, 'bytes');
+    console.log('File type:', file.type);
+
     try {
       const auth = gapi.auth2.getAuthInstance();
       if (!auth.isSignedIn.get()) {
@@ -64,7 +67,7 @@ function App() {
       console.log('Uploading file:', file.name, 'to folder:', uploadsFolder);
       const response = await uploadToGoogleDrive(file, uploadsFolder);
       console.log('File upload response:', response);
-      setFileUrl(response.result.webViewLink);
+      setFileUrl(response.webViewLink);
       setMessage('File uploaded successfully');
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -98,19 +101,6 @@ function App() {
   };
 
   const uploadToGoogleDrive = async (file, folderId) => {
-    const fileMetadata = {
-      name: file.name,
-      parents: [folderId],
-    };
-
-    const initializeUpload = await gapi.client.drive.files.create({
-      resource: fileMetadata,
-      fields: 'id',
-      supportsAllDrives: true,
-    });
-
-    const fileId = initializeUpload.result.id;
-
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -134,6 +124,7 @@ function App() {
           }
 
           const sessionUrl = sessionResponse.headers.get('Location');
+          console.log('Upload session URL:', sessionUrl);
 
           // Upload the file content
           const uploadResponse = await fetch(sessionUrl, {
@@ -148,12 +139,20 @@ function App() {
             throw new Error(`Failed to upload file: ${uploadResponse.statusText}`);
           }
 
-          const fileInfo = await gapi.client.drive.files.get({
-            fileId: fileId,
-            fields: 'id,webViewLink',
+          console.log('Upload response status:', uploadResponse.status);
+
+          const uploadResult = await uploadResponse.json();
+          console.log('Upload result:', uploadResult);
+
+          // Fetch file details to get the webViewLink
+          const fileDetails = await gapi.client.drive.files.get({
+            fileId: uploadResult.id,
+            fields: 'id,name,webViewLink',
           });
 
-          resolve(fileInfo);
+          console.log('File details:', fileDetails.result);
+
+          resolve(fileDetails.result);
         } catch (error) {
           console.error('Error during file upload:', error);
           reject(error);
@@ -196,7 +195,8 @@ function App() {
         {isLoading ? <CircularProgress size={24} /> : 'Upload to Google Drive'}
       </Button>
       {fileUrl && (
-        <div>
+        <div style={{ marginTop: '20px' }}>
+          <Typography variant="subtitle1">File URL:</Typography>
           <TextField
             value={fileUrl}
             fullWidth
@@ -204,9 +204,9 @@ function App() {
             InputProps={{
               readOnly: true,
               endAdornment: (
-                <Button onClick={copyToClipboard}>
+                <IconButton onClick={copyToClipboard}>
                   <FileCopy />
-                </Button>
+                </IconButton>
               ),
             }}
           />
